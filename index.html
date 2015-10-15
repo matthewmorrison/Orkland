@@ -4,15 +4,81 @@
 	<script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>-->
     <link rel="stylesheet" href="leaflet.css" />
 	<script src="leaflet.js"></script>
+	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<style>
 		#map { height: 180px; }
 
-		head,html,#map { height: 100%;}
+		head,body,html,#map { height: 100%; margin: 0; padding: 0;}
+
+		#menu {
+			width: 392px;
+			position: absolute;
+			right: 10px;
+			top: 10px;
+			z-index: 9999;
+			border: 1px solid #3366FF;
+			background-color: #fff;
+		}
+
+		#menu-top {
+			height: 48px;
+			background-color: #fff;
+		}
+
+
+
+		#menu-handle {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			width: 48px;
+			height: 48px;
+			background-color: #666;
+		}
+
+		#menu-handle:hover:after {
+			content: "";
+			position: absolute;
+			top: 5px;
+			left: 5px;
+			height: 38px;
+			width: 38px;
+			background-color: #3366FF;
+		}
+
+		#menu-search {
+			position: absolute;
+			left: 48px;
+			top: 0;
+			right: 0px;
+			vertical-align: middle;
+		}
+
+		#menu-search input {
+			margin: 10px;
+			line-height: 24px;
+			font-size: 15px;
+			width: 330px;
+			font: Roboto, Arial, sans-serif;
+		}
 	</style>
 </head>
 <body>
 	<div id="map"></div>
-
+	<div id="menu">
+		<div id="menu-top">
+			<div id="menu-handle"></div>
+			<div id="menu-search">
+				<input type="text" placeholder="Search Locations" />
+			</div>
+		</div>
+		<div id="menu-body">
+			<ul id="locations">
+				<li data-x="12" data-y="-165"><p>Gronk</p></li>
+				<li data-x="30.37" data-y="-162.68"><p>Gnatspit</p></li>
+			</ul>
+		</div>
+	</div>
 	<script type="text/javascript">
 		var map = L.map('map', {
 			maxBounds: [
@@ -21,12 +87,53 @@
 			]
 		}).setView([12, -165], 5);
 
+		map.on('click', function(e) {
+			var x = e.latlng.lat.toFixed(3);
+			var y = e.latlng.lng.toFixed(3);
+
+			map.setView([x, y]);
+
+			if(currentMarker) {
+				map.removeLayer(currentMarker);
+			}
+
+			currentMarker = L.marker([x, y]);
+			map.addLayer(currentMarker);
+
+			currentMarker.bindPopup("Location: " + x + ", " + y).openPopup();
+		});
+
 		L.tileLayer('images/tiles/{z}/{x}/{y}.png?', { 
 			minZoom: 0, 
 			maxZoom: 6,
 			noWrap: true
 			//tms: true
 		}).addTo(map);
+
+
+
+		var currentMarker = null;
+
+		$(function() {
+			initLocations();
+		});
+
+		function initLocations() {
+			$('#locations').on('click', 'li', function(e) {
+				var li = $(e.currentTarget);
+				var x = li.attr('data-x');
+				var y = li.attr('data-y');
+
+				map.setView([x, y]);
+
+				if(currentMarker) {
+					map.removeLayer(currentMarker);
+				}
+
+				currentMarker = L.marker([x, y]);
+				map.addLayer(currentMarker);
+			});
+		}
 	</script>
 </body>
 </html>
