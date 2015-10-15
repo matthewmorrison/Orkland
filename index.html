@@ -1,0 +1,38 @@
+<html>
+<head>
+	<!--<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" />
+	<script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>-->
+    <link rel="stylesheet" href="leaflet.css" />
+	<script src="leaflet.js"></script>
+	<style>
+		#map { height: 180px; }
+
+		head,html,#map { height: 100%;}
+	</style>
+</head>
+<body>
+	<div id="map"></div>
+
+	<script type="text/javascript">
+		var map = L.map('map', {
+			maxBounds: [
+		    	[0, 0],
+		    	[100, -180]
+			]
+		}).setView([12, -165], 5);
+
+		L.tileLayer('images/tiles/Orkland/{z}/{x}/{y}.png?', { 
+			minZoom: 0, 
+			maxZoom: 6,
+			noWrap: true
+			//tms: true
+		}).addTo(map);
+
+		map.maxBounds([
+		    [0, 0],
+		    [50, 170]
+		]);
+
+	</script>
+</body>
+</html>
