@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="leaflet.css" />
 	<script src="leaflet.js"></script>
 	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="w02lnsxhot4tswe"></script>
 	<style>
 		#map { height: 180px; }
 
@@ -73,6 +74,7 @@
 			</div>
 		</div>
 		<div id="menu-body">
+			<input type="button" value="Update Locations" id="update-locations" />
 			<ul id="locations">
 				<li data-x="12" data-y="-165"><p>Gronk</p></li>
 				<li data-x="30.37" data-y="-162.68"><p>Gnatspit</p></li>
@@ -119,6 +121,17 @@
 		});
 
 		function initLocations() {
+			$('#update-locations').on('click', function() {
+				Dropbox.choose({
+					success: function(response) {
+						console.log(response);
+					},
+					linkType: 'direct'
+				});
+			});
+		
+		//	$.ajax('https://www.dropbox.com/s/scjxkhgj1ss5kff/locations.html?dl=0').done(function(data) { console.log(data); });
+
 			$('#locations').on('click', 'li', function(e) {
 				var li = $(e.currentTarget);
 				var x = li.attr('data-x');
