@@ -125,6 +125,7 @@
 				Dropbox.choose({
 					success: function(response) {
 						console.log(response);
+						$.ajax(response[0].link).done(function(data) { console.log(data); });
 					},
 					linkType: 'direct'
 				});
