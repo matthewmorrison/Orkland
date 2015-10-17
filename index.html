@@ -4,6 +4,7 @@
 	<script src="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js"></script>-->
     <link rel="stylesheet" href="leaflet.css" />
 	<script src="leaflet.js"></script>
+	<script src="google-spreadsheet.js"></script>
 	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 	<script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="w02lnsxhot4tswe"></script>
 	<style>
@@ -62,6 +63,22 @@
 			width: 330px;
 			font: Roboto, Arial, sans-serif;
 		}
+		
+		.location-form div {
+			margin-bottom: 10px;
+		}
+		
+		.location-form textarea, .location-form input[type="text"] {
+			width: 300px;
+		}
+		
+		.location-form textarea {
+			height: 200px;
+		}
+		
+		#locations .location-description {
+			display: none;
+		}
 	</style>
 </head>
 <body>
@@ -102,7 +119,7 @@
 			currentMarker = L.marker([x, y]);
 			map.addLayer(currentMarker);
 
-			currentMarker.bindPopup("Location: " + x + ", " + y).openPopup();
+			currentMarker.bindPopup('<div class="location-add">Location: ' + x + ", " + y + '<div class="location-form"><div><input id="location-name" type="text" placeholder="Location Name" /></div><div><textarea id="location-description" placeholder="Location Description"></textarea></div><div class="location-add-button"><input type="button" onclick="addLocation(' + x + ', ' + y + ')" value="Add Location" /></div></div>').openPopup();
 		});
 
 		L.tileLayer('images/tiles/{z}/{x}/{y}.png?', { 
@@ -115,23 +132,31 @@
 
 
 		var currentMarker = null;
+		var locationsFile = null;
 
 		$(function() { 
-			initLocations();
+			//initLocations();
+			
+			 $.ajax('https://drive.google.com/open?id=10FRM0oc3u2gntI7ecM37pZKafxNq1rzxJjZH7w67DgU', {
+				contentType: "application/x-www-form-urlencoded; charset=UTF-8"
+			 }).done(function(data) {
+				console.log(data);
+			 })
 		});
 
 		function initLocations() {
 			$('#update-locations').on('click', function() {
 				Dropbox.choose({
 					success: function(response) {
-						console.log(response);
-						$.ajax(response[0].link).done(function(data) { console.log(data); });
+						//console.log(response);
+						locationsFile = response[0].link;
+						$.ajax(locationsFile).done(function(data) { 
+							$('locations').html(data);
+						});
 					},
 					linkType: 'direct'
 				});
 			});
-		
-		//	$.ajax('https://www.dropbox.com/s/scjxkhgj1ss5kff/locations.html?dl=0').done(function(data) { console.log(data); });
 
 			$('#locations').on('click', 'li', function(e) {
 				var li = $(e.currentTarget);
@@ -147,6 +172,37 @@
 				currentMarker = L.marker([x, y]);
 				map.addLayer(currentMarker);
 			});
+		}
+		
+		function addLocation(x, y) {
+			return alert('not implemented');
+			//$.ajax(locationsFile).done(function(data) { 
+		//		$('locations').html(data);
+	//		});
+			var name = $('#location-name').val();
+			var description = $('#location-description').val();
+			var duplicate = false;
+			var added = false;
+			
+			var lowerName = name.toLowerCase();
+			var html = '<li data-x="' + x + '" data-y="' + y + '"><div class="location-name">' + name + '</div><div class="location-description">' + description + '</div></li>';
+	
+			$('#locations li').each(function(index, item) {
+				var $item = $(item);
+				var itemName = $item.find('.location-name').text().toLowerCase();
+				
+				if(lowerName < itemName) {
+					$item.before(html);
+					added = true;
+				}
+				else if (lowerName == itemName) {
+					duplicate = true;
+				}
+			});
+			
+			if(!added && !duplicate) {
+				$('#locations').append(html);
+			}
 		}
 	</script>
 </body>
