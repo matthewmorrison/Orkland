@@ -222,7 +222,7 @@ function saveLocation() {
 		'data': JSON.stringify(data)
 	}
 				
-	if (!/^([A-Z0-9'."]|\s)+$/gi.test(name + description + tags)) {
+	if (!/^([A-Z0-9'.,\-"]|\s)+$/gi.test(name + description + tags)) {
 		return alert('Invalid characters.');
 	}
 	
