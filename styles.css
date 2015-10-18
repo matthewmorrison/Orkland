@@ -1,0 +1,121 @@
+#map { height: 180px; }
+
+head,body,html,#map { height: 100%; margin: 0; padding: 0;}
+
+#menu {
+	width: 392px;
+	position: absolute;
+	right: 10px;
+	top: 10px;
+	z-index: 9999;
+	border: 1px solid #3366FF;
+	background-color: #fff;
+}
+
+#menu-top {
+	height: 58px;
+	background-color: #fff;
+}
+
+#menu-handle {
+	position: absolute;
+	left: 0px;
+	top: 0px;
+	width: 48px;
+	height: 48px;
+	background-color: #666;
+}
+
+#menu-handle:hover:after {
+	content: "";
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	height: 38px;
+	width: 38px;
+	background-color: #3366FF;
+}
+
+#menu-body {
+	display: none;
+}
+
+#menu-search {
+	position: absolute;
+	left: 2px;
+	top: 0;
+	right: 0px;
+	vertical-align: middle;
+}
+
+#menu-search input {
+	margin: 10px;
+	line-height: 24px;
+	font-size: 15px;
+	width: 370px;
+	font: Roboto, Arial, sans-serif;
+	padding-left: 5px;
+	border: none;
+}
+
+#menu-displayer {
+	position: absolute;
+	top: 40px;
+	left: 140px;
+	cursor: pointer;
+}
+
+.location-form div {
+	margin-bottom: 10px;
+}
+
+.location-form textarea, .location-form input[type="text"] {
+	width: 100%;
+}
+
+.location-form textarea {
+	height: 200px;
+}
+
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+}
+
+#locations .location-description, #locations .location-tags {
+	display: none;
+}
+
+#locations li {
+	cursor: pointer;
+	padding: 2px 30px;
+}
+
+#locations li:hover {
+	background-color: #ccc;
+}
+
+#location-template {
+	display: none;
+}
+
+.location-popup div {
+	padding-bottom: 5px;
+}
+
+.location-details .location-name {
+	font-weight: bold;
+}
+
+#location-dialog .location-saving {
+	display: none;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: rgba(200, 200, 200, .8) url('images/ajax-loader.gif') no-repeat fixed center;
+	padding-top:20px;
+	text-align: center;
+}
