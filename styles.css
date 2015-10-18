@@ -13,7 +13,7 @@ head,body,html,#map { height: 100%; margin: 0; padding: 0;}
 }
 
 #menu-top {
-	height: 58px;
+	height: 60px;
 	background-color: #fff;
 }
 
@@ -83,7 +83,7 @@ ul {
 	padding: 0;
 }
 
-#locations .location-description, #locations .location-tags {
+#locations .location-coordinates, #locations .location-description, #locations .location-tags {
 	display: none;
 }
 

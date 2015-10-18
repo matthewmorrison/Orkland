@@ -43,7 +43,8 @@
 		</div>
 	</div>
 	<div id="location-template">
-		<li class="location-details" data-x="" data-y="" data-name="">
+		<li class="location-details" data-name="">
+			<div class="location-coordinates" >Position: <span data-x="" data-y="" ></span></div>
 			<div class="location-name"></div>
 			<div class="location-description"></div>
 			<div class="location-tags"></div>
@@ -52,7 +53,7 @@
 
 		<?php
 			echo '<script>
-				var locations = [';
+				var locations = {';
 			$dir = new DirectoryIterator('./locations');
 			$first = true;
 			foreach ($dir as $fileinfo) {
@@ -63,12 +64,11 @@
 					else {
 						$first = false;
 					}
-					echo '{ name: "'.substr($dir, 0, -4).'", data: ';
+					echo '"'.substr($dir, 0, -4).'": ';
 					echo file_get_contents('./locations/'.$fileinfo->getFilename());
-					echo '}';
 				}
 			}
-			echo ']
+			echo '}
 			</script>';
 		?>	
 </body>

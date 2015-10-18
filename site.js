@@ -32,7 +32,7 @@ function initMap() {
 		currentMarker = L.marker([x, y]);
 		map.addLayer(currentMarker);
 
-		currentMarker.bindPopup('<div>Position: ' + x + ',' + y + '</div><div><a href="#location-dialog" onclick="openLocationDialog(' + x + ', ' + y + ', null)">add location</a></div>').openPopup();
+		currentMarker.bindPopup('<div class="location-coordinates" >Position: <span data-x="' + x + '" data-y="' + y +'" >' + x + ', ' + y + '</span></div></div><div><a href="#location-dialog" onclick="openLocationDialog()">add location</a></div>').openPopup();
 	});
 
 	L.tileLayer('images/tiles/{z}/{x}/{y}.png?', { 
@@ -51,8 +51,9 @@ function initLocations() {
 
 	$('#locations').on('click', 'li', function(e) {
 		var li = $(e.currentTarget);
-		var x = li.attr('data-x');
-		var y = li.attr('data-y');
+		var coords = li.find('.location-coordinates span');
+		var x = coords.attr('data-x');
+		var y = coords.attr('data-y');
 
 		map.setView([x, y]);
 
@@ -63,28 +64,29 @@ function initLocations() {
 		currentMarker = L.marker([x, y]);
 		map.addLayer(currentMarker);
 		
-		var popup = '<div class="location-popup">' + li.html() + '<div><a href="#location-template" onclick="openLocationDialog(null, null, \'' + li.find('.location-name').text() + '\')" >edit</div></div></div>';
+		var popup = '<div class="location-popup">' + li.html() + '<div><a href="#location-template" onclick="openLocationDialog()" >edit</div></div></div>';
 		
 		currentMarker.bindPopup(popup).openPopup();
 	});
 	
 	var ul = $('#locations');
 	
-	for(var i = 0; i < locations.length; i++) {
+	//for(var i = 0; i < locations.length; i++) {
+	for(var loc in locations) {
 		try {
-			var li = buildLocation(locations[i].data);
+			var li = buildLocation(locations[loc]);
 			ul.append(li);
 		}
 		catch(e){ console.log(e); }
 	}
-	
-	//refreshLocations();
 }
 
 function buildLocation(data) {
 	var li = $(locationTemplate.html());
-	li.attr('data-x', data.x);
-	li.attr('data-y', data.y);
+	var coords = li.find('.location-coordinates span');
+	coords.attr('data-x', data.x);
+	coords.attr('data-y', data.y);
+	coords.text(data.x + ', ' + data.y);
 	li.attr('data-name', data.name);
 	li.find('.location-name').text(data.name);
 	li.find('.location-description').html(data.description);
@@ -200,6 +202,7 @@ function refreshLocations() {
 
 function saveLocation() {	
 	var name = $('#location-name').val();
+	var originalName = $('#location-name').attr('data-original-name');
 	var x = $('#location-edit-coordinates').attr('data-x');
 	var y = $('#location-edit-coordinates').attr('data-y');
 	var description = $('#location-description').val();
@@ -207,50 +210,76 @@ function saveLocation() {
 	var duplicate = false;
 	var added = false;
 	var data = {
-					'name': name,
-					'x': x,
-					'y': y,
-					'description': description,
-					'tags': tags
-				};
+		'name': name,
+		'x': x,
+		'y': y,
+		'description': description,
+		'tags': tags
+	}
+				
+	var payload = { 
+		'name': name, 
+		'data': JSON.stringify(data)
+	}
 				
 	if (!/^([A-Z0-9'."]|\s)+$/gi.test(name + description + tags)) {
 		return alert('Invalid characters.');
 	}
 	
+	if(originalName && originalName.length > 0 && originalName != name) {
+		payload.original = originalName;
+	}
+	else {
+		originalName = name;
+	}
+	
 	var lowerName = name.toLowerCase();
+	var lowerOriginalName = originalName.toLowerCase();
 	var html = buildLocation(data);// '\r\n<li data-x="' + x + '" data-y="' + y + '"><div class="location-name">' + name + '</div><div class="location-description">' + description + '</div><div class="location-tags">' + tags + '</div></li>';
 	
 	$('#location-dialog .location-saving').css('display', 'block');
 	
 	$.ajax('saveLocations.php', {
 		method: 'post',
-		data: { 
-				'name': name, 
-				'data': JSON.stringify(data)
-		}
+		data: payload
 	})
-	.done(function() {
+	.done(function(response) {
+		
+		if(response != 'success') {
+			return alert('Error: ' + response);
+		}
+		
 		locationDialog.dialog('close');
 		var li = null;
 		var before = null;
 		
-		$('#locations li').each(function(index, item) {
+		$('#locations li').each(function(index, item) {			
 			var $item = $(item);
 			var itemName = $item.find('.location-name').text().toLowerCase();
 			
-			if(lowerName < itemName) {
-				before = html;
+			if (lowerOriginalName == itemName) {
+				duplicate = true;
+				delete locations[originalName];
+				li = $item.replaceWith(html);
 				added = true;
 			}
-			else if (lowerName == itemName) {
-				duplicate = true;
-				li = $item.replaceWith(html);
+			
+			if(added) {
+				return;
 			}
+			
+			if(lowerName < itemName) {
+				before = $item;
+				added = true;
+			}
+			
 		});
 		
 		if(!added && !duplicate) {
 			$('#locations').append(html);
+		}
+		else if(before) {
+			before.before(html);
 		}
 		
 		locations[name] = data;
@@ -269,24 +298,31 @@ function saveLocation() {
 	});
 }
 
-function openLocationDialog(x, y, name) {
+function openLocationDialog() {
+	var popup = $('.leaflet-popup');
+	var name = popup.find('.location-name').text();
+	var coords = popup.find('.location-coordinates span');
+	var x = coords.attr('data-x');
+	var y = coords.attr('data-y');
+	
 	if(typeof name == 'undefined') {
 		name = null;
 	}
 	
 	locationDialog.dialog('open');
-
 	
 	if(name) {
 		var edit = $('#locations li[data-name="' + name + '"]');
-		x = edit.attr('data-x');
-		y = edit.attr('data-y');
+		//x = edit.attr('data-x');
+		//y = edit.attr('data-y');
 		$('#location-name').val(edit.attr('data-name'));
+		$('#location-name').attr('data-original-name', name);
 		$('#location-description').val(edit.find('.location-description').html());
 		$('#location-tags').val(edit.find('.location-tags').text().replace(/#/g, ''));
 		$('#location-save-button').val('Update Location');
 	}
 	else {
+		$('#location-name').attr('data-original-name', null);
 		$('#location-name, #location-description, #location-tags').val('');
 		$('#location-save-button').val('Add Location');
 	}
