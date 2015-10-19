@@ -108,6 +108,21 @@ ul {
 	font-weight: bold;
 }
 
+.leaflet-popup .location-name {
+	font-size: 14px;
+	font-weight: bold;
+} 
+
+.location-description {
+	display: block;
+	white-space: pre-wrap;
+	height: 200px;
+	overflow: auto;
+	width: 300px;
+	border: 1px solid #3366FF;
+	padding: 2px;
+}
+
 #location-dialog .location-saving {
 	display: none;
 	position: absolute;
