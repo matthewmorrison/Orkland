@@ -209,6 +209,9 @@ function saveLocation() {
 	var tags = $('#location-tags').val();
 	var duplicate = false;
 	var added = false;
+	var allChars = /^([A-Z0-9'.,\\\/\-_+~:;()[\]=$%*"]|\s)+$/gi;
+	var nameChars = /^([A-Z0-9,'\-()]|\s)+$/gi;
+	var tagChars = /^([A-Z0-9',\-]|\s)+$/gi;
 	var data = {
 		'name': name,
 		'x': x,
@@ -216,14 +219,24 @@ function saveLocation() {
 		'description': description,
 		'tags': tags
 	}
+	
+	tags = tags.replace(/#/g, '');
 				
 	var payload = { 
 		'name': name, 
 		'data': JSON.stringify(data)
 	}
+	
+	if(!nameChars.test(name)) {
+		return alert('Invalid name.');
+	}
 				
-	if (!/^([A-Z0-9'.,\-_+~:;()[\]=$%*"]|\s)+$/gi.test(name + description + tags)) {
-		return alert('Invalid characters.');
+	if (description.length && !allChars.test(description)) {
+		return alert('Invalid characters in description.');
+	}
+	
+	if(tags.length && !tagChars.test(tags)) {
+		return alert('Invalid characters in tags.');
 	}
 	
 	if(originalName && originalName.length > 0 && originalName != name) {
